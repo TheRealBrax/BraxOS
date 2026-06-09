@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-
-  <script type="module" src="./script.js"></script>
-  <link rel="stylesheet" type="text/css" href="style.css" />
-
+    <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
 
 
@@ -141,11 +138,12 @@
       </div>
       <h1>Files</h1>
       <p class="windowsubtitle">Browse and manage your Web OS documents.</p>
+      <div class="file-toolbar">
+        <button type="button" id="newFile" class="buttonlink">New File</button>
+        <button type="button" id="uploadFile" class="buttonlink">Upload</button>
+        <input id="uploadInput" type="file" style="display:none">
+      </div>
       <div class="file-list">
-        <div class="file-row" data-fileid="notes">Notes.txt</div>
-        <div class="file-row" data-fileid="resume">Resume.pdf</div>
-        <div class="file-row" data-fileid="projectplan">ProjectPlan.md</div>
-        <div class="file-row" data-fileid="budget">Budget.xlsx</div>
       </div>
     </div>
 
@@ -160,7 +158,16 @@
       <h1 id="previewFileName">File Preview</h1>
       <p class="windowsubtitle" id="previewFileType">Select a file to view its contents.</p>
       <div class="preview-body">
-        <pre id="previewFileContent" class="preview-output">No file selected.</pre>
+        <img id="previewFileImage" class="preview-image hidden" alt="File preview image">
+        <iframe id="previewFileFrame" class="preview-frame hidden" title="File preview frame"></iframe>
+        <textarea id="previewFileContent" class="preview-output hidden" placeholder="No file selected."></textarea>
+        <div id="previewPlaceholder" class="preview-placeholder hidden">No preview available for this file type.</div>
+        <div class="preview-actions">
+          <button type="button" id="previewSave" class="buttonlink">Save</button>
+          <button type="button" id="previewRename" class="buttonlink">Rename</button>
+          <button type="button" id="previewDelete" class="buttonlink">Delete</button>
+          <button type="button" id="previewDownload" class="buttonlink">Download</button>
+        </div>
       </div>
     </div>
 
@@ -186,6 +193,7 @@
       <button class="dockicon" data-target="files">Files</button>
       <button class="dockicon" data-target="settings">Settings</button>
     </div>
+    <script type="module" src="./script.js"></script>
   </body>
 
 </html>

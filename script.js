@@ -65,11 +65,14 @@ var welcomeScreenOpen = document.querySelector('#welcomeopen');
 var dockButtons = document.querySelectorAll('.dockicon');
 var closeButtons = document.querySelectorAll('.windowclose');
 var appCards = document.querySelectorAll('.app-card');
-var fileRows = document.querySelectorAll('.file-row');
+var fileListContainer = document.querySelector('.file-list');
 var previewWindow = document.querySelector('#filePreview');
 var previewTitle = document.querySelector('#previewFileName');
 var previewType = document.querySelector('#previewFileType');
 var previewContent = document.querySelector('#previewFileContent');
+var previewImage = document.querySelector('#previewFileImage');
+var previewFrame = document.querySelector('#previewFileFrame');
+var previewPlaceholder = document.querySelector('#previewPlaceholder');
 var calcDisplay = document.querySelector('#calcDisplay');
 var calcButtons = document.querySelectorAll('.calc-button');
 var browserUrlInput = document.querySelector('#browserUrl');
@@ -90,6 +93,11 @@ var fileSystem = {
     type: 'Text Document',
     content: 'Meeting notes:\n- Discuss roadmap\n- Assign tasks\n\nRemember to push changes.'
   },
+  photos: {
+    name: 'Photos.png',
+    type: 'image/svg+xml',
+    content: 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22200%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20fill%3D%22%2369c0ff%22/%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%22100%22%20r%3D%2270%22%20fill%3D%22%23ffffff%22/%3E%3C/svg%3E'
+  },
   resume: {
     name: 'Resume.pdf',
     type: 'PDF Document',
@@ -109,6 +117,46 @@ var fileSystem = {
 
 var calcCurrent = '0';
 var notesStorageKey = 'braxos-notes';
+var filesStorageKey = 'braxos-files';
+var currentPreviewFileId = null;
+
+function loadFileSystem() {
+  try {
+    var saved = localStorage.getItem(filesStorageKey);
+    if (saved) {
+      var parsed = JSON.parse(saved);
+      if (parsed && typeof parsed === 'object') {
+        fileSystem = parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to load file system:', e);
+  }
+}
+
+function saveFileSystem() {
+  try {
+    localStorage.setItem(filesStorageKey, JSON.stringify(fileSystem));
+  } catch (e) {
+    console.warn('Failed to save file system:', e);
+  }
+}
+
+function renderFileList() {
+  if (!fileListContainer) return;
+  fileListContainer.innerHTML = '';
+  Object.keys(fileSystem).forEach(function(id) {
+    var file = fileSystem[id];
+    var div = document.createElement('div');
+    div.className = 'file-row';
+    div.dataset.fileid = id;
+    div.textContent = file.name || id;
+    div.addEventListener('click', function() {
+      openFilePreview(this.dataset.fileid);
+    });
+    fileListContainer.appendChild(div);
+  });
+}
 
 
 function handleCalcClick() {
@@ -135,13 +183,63 @@ function handleCalcClick() {
   calcDisplay.textContent = calcCurrent;
 }
 
+function isTextFile(file) {
+  if (!file || !file.type) return false;
+  return file.type.indexOf('text/') === 0 || file.name.match(/\.(txt|md|json|csv|js|html|css|xml)$/i);
+}
+
+function isImageFile(file) {
+  return file && file.type && file.type.indexOf('image/') === 0;
+}
+
+function isPdfFile(file) {
+  return file && file.type && file.type.indexOf('pdf') !== -1;
+}
+
+function previewFileElements(options) {
+  if (previewImage) previewImage.classList.toggle('hidden', !options.image);
+  if (previewFrame) previewFrame.classList.toggle('hidden', !options.frame);
+  if (previewContent) previewContent.classList.toggle('hidden', !options.text);
+  if (previewPlaceholder) previewPlaceholder.classList.toggle('hidden', !options.placeholder);
+}
+
 function openFilePreview(fileId) {
   var file = fileSystem[fileId];
   if (!file) return;
 
+  currentPreviewFileId = fileId;
   previewTitle.textContent = file.name;
   previewType.textContent = file.type;
-  previewContent.textContent = file.content;
+  previewFrame.src = '';
+
+  if (isImageFile(file) && previewImage) {
+    previewImage.src = file.content;
+    previewImage.alt = file.name;
+    previewFileElements({ image: true, frame: false, text: false, placeholder: false });
+  } else if (isPdfFile(file) && previewFrame) {
+    previewFrame.src = file.content;
+    previewFileElements({ image: false, frame: true, text: false, placeholder: false });
+  } else if (isTextFile(file) && previewContent) {
+    previewContent.value = file.content || '';
+    previewFileElements({ image: false, frame: false, text: true, placeholder: false });
+  } else if (file.content && file.content.startsWith('data:')) {
+    if (file.content.indexOf('image/') !== -1 && previewImage) {
+      previewImage.src = file.content;
+      previewImage.alt = file.name;
+      previewFileElements({ image: true, frame: false, text: false, placeholder: false });
+    } else if (file.content.indexOf('application/pdf') !== -1 && previewFrame) {
+      previewFrame.src = file.content;
+      previewFileElements({ image: false, frame: true, text: false, placeholder: false });
+    } else {
+      previewFileElements({ image: false, frame: false, text: false, placeholder: true });
+    }
+  } else if (previewContent) {
+    previewContent.value = file.content || '';
+    previewFileElements({ image: false, frame: false, text: true, placeholder: false });
+  } else {
+    previewFileElements({ image: false, frame: false, text: false, placeholder: true });
+  }
+
   openWindow(previewWindow);
 }
 
@@ -252,14 +350,142 @@ if (notesText) {
 
 loadNotes();
 
-fileRows.forEach(function(row) {
-  row.addEventListener('click', function() {
-    var fileId = row.dataset.fileid;
-    if (fileId) {
-      openFilePreview(fileId);
+// Initialize persistent file system and render
+loadFileSystem();
+renderFileList();
+
+var newFileBtn = document.getElementById('newFile');
+var uploadFileBtn = document.getElementById('uploadFile');
+var uploadInput = document.getElementById('uploadInput');
+var previewSaveBtn = document.getElementById('previewSave');
+var previewRenameBtn = document.getElementById('previewRename');
+var previewDeleteBtn = document.getElementById('previewDelete');
+var previewDownloadBtn = document.getElementById('previewDownload');
+
+function slugifyName(name) {
+  return name.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\-.]/g, '');
+}
+
+if (newFileBtn) {
+  newFileBtn.addEventListener('click', function() {
+    var name = prompt('New file name', 'untitled.txt');
+    if (!name) return;
+    var id = slugifyName(name);
+    if (!id) id = 'file_' + Date.now();
+    var baseId = id;
+    var i = 1;
+    while (fileSystem[id]) {
+      id = baseId + '_' + i;
+      i++;
+    }
+    fileSystem[id] = { name: name, type: 'Text Document', content: '' };
+    saveFileSystem();
+    renderFileList();
+    openFilePreview(id);
+  });
+}
+
+if (uploadFileBtn && uploadInput) {
+  uploadFileBtn.addEventListener('click', function() { uploadInput.click(); });
+  uploadInput.addEventListener('change', function(e) {
+    var f = this.files && this.files[0];
+    if (!f) return;
+    var name = f.name;
+    var id = slugifyName(name) || ('file_' + Date.now());
+    var baseId = id;
+    var idx = 1;
+    while (fileSystem[id]) {
+      id = baseId + '_' + idx;
+      idx++;
+    }
+    var type = f.type || 'File';
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var result = ev.target.result;
+      if (type.indexOf('image/') === 0 || type.indexOf('pdf') !== -1) {
+      fileSystem[id] = { name: name, type: type, content: result };
+    } else if (type.indexOf('text') === 0 || name.match(/\.(txt|md|json|csv|js|html|css|xml)$/i)) {
+      fileSystem[id] = { name: name, type: type, content: result };
+    } else {
+      fileSystem[id] = { name: name, type: type || 'Binary', content: '[Binary file — preview not available]' };
+    }
+      saveFileSystem();
+      renderFileList();
+      openFilePreview(id);
+      uploadInput.value = '';
+    };
+    if (type.indexOf('image/') === 0 || type.indexOf('pdf') !== -1) {
+      reader.readAsDataURL(f);
+    } else {
+      reader.readAsText(f);
     }
   });
-});
+}
+
+if (previewSaveBtn) {
+  previewSaveBtn.addEventListener('click', function() {
+    if (!currentPreviewFileId) return;
+    var file = fileSystem[currentPreviewFileId];
+    if (!file) return;
+    if (file.type && file.type.indexOf('image/') === 0) {
+      alert('Image files cannot be edited as text here. Use the upload button to replace them.');
+      return;
+    }
+    var txt = previewContent.value;
+    file.content = txt;
+    saveFileSystem();
+    renderFileList();
+    alert('Saved.');
+  });
+}
+
+if (previewRenameBtn) {
+  previewRenameBtn.addEventListener('click', function() {
+    if (!currentPreviewFileId) return;
+    var newName = prompt('Rename file to', fileSystem[currentPreviewFileId].name || '');
+    if (!newName) return;
+    fileSystem[currentPreviewFileId].name = newName;
+    saveFileSystem();
+    renderFileList();
+    previewTitle.textContent = newName;
+  });
+}
+
+if (previewDeleteBtn) {
+  previewDeleteBtn.addEventListener('click', function() {
+    if (!currentPreviewFileId) return;
+    if (!confirm('Delete "' + (fileSystem[currentPreviewFileId].name || currentPreviewFileId) + '"?')) return;
+    delete fileSystem[currentPreviewFileId];
+    saveFileSystem();
+    renderFileList();
+    closeWindow(previewWindow);
+    currentPreviewFileId = null;
+  });
+}
+
+if (previewDownloadBtn) {
+  previewDownloadBtn.addEventListener('click', function() {
+    if (!currentPreviewFileId) return;
+    var file = fileSystem[currentPreviewFileId];
+    if (!file) return;
+    var content = file.content || '';
+    var a = document.createElement('a');
+    if (content.startsWith('data:')) {
+      a.href = content;
+    } else {
+      var type = file.type && file.type.indexOf('text') === 0 ? file.type : 'text/plain';
+      var blob = new Blob([content], { type: type });
+      a.href = URL.createObjectURL(blob);
+    }
+    a.download = file.name || 'download.txt';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    if (!content.startsWith('data:')) {
+      URL.revokeObjectURL(a.href);
+    }
+  });
+}
 
 calcButtons.forEach(function(button) {
   button.addEventListener('click', handleCalcClick);
