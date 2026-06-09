@@ -22,3 +22,8 @@ A small web OS interface built with HTML, CSS, and JavaScript.
 - Launch `Browser` or `Notes` from there
 - Save notes and refresh to keep them stored
 - Open `Files` and click a file to preview content
+
+## Credits
+
+- Thank you to `@SerenityUX` for creating the tutorial that I was following 
+- AI was used to check the code
