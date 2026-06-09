@@ -85,20 +85,25 @@ var body = document.body;
 var desktopGlow = document.querySelector('.desktop-glow');
 
 var fileSystem = {
-  documents: {
-    name: 'Documents.txt',
+  notes: {
+    name: 'Notes.txt',
     type: 'Text Document',
-    content: 'This is your document.\n\nBraxOS file system simulation is working properly!'
+    content: 'Meeting notes:\n- Discuss roadmap\n- Assign tasks\n\nRemember to push changes.'
   },
-  photos: {
-    name: 'Photos.png',
-    type: 'Image File',
-    content: '[Image preview is not supported in this demo]'
+  resume: {
+    name: 'Resume.pdf',
+    type: 'PDF Document',
+    content: '[Binary file — preview not available]'
   },
-  projects: {
-    name: 'Projects.zip',
-    type: 'Archive File',
-    content: 'Archive contents:\n- project1/\n- project2/\n- readme.md'
+  projectplan: {
+    name: 'ProjectPlan.md',
+    type: 'Markdown Document',
+    content: '# Project Plan\n\n- Goal: Build BraxOS\n- Milestones:\n  - MVP\n  - Apps\n'
+  },
+  budget: {
+    name: 'Budget.xlsx',
+    type: 'Spreadsheet',
+    content: 'Quarter,Amount\nQ1,10000\nQ2,12000'
   }
 };
 
@@ -268,5 +273,42 @@ closeButtons.forEach(function(button) {
     }
   });
 });
+
+// Click sound using Web Audio API: short per-click pop, skipped for text inputs.
+var _braxosAudioCtx = null;
+function playClickSound() {
+  try {
+    if (!_braxosAudioCtx) _braxosAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    var ctx = _braxosAudioCtx;
+    var o = ctx.createOscillator();
+    var g = ctx.createGain();
+    var f = ctx.createBiquadFilter();
+    o.type = 'sine';
+    o.frequency.value = 600;
+    f.type = 'lowpass';
+    f.frequency.value = 2500;
+    o.connect(g);
+    g.connect(f);
+    f.connect(ctx.destination);
+    var now = ctx.currentTime;
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.06, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+    o.start(now);
+    o.stop(now + 0.2);
+  } catch (e) {
+    // ignore audio errors on unsupported browsers
+  }
+}
+
+document.addEventListener('click', function(e) {
+  // only primary (left) clicks
+  if (e.button && e.button !== 0) return;
+  var t = e.target;
+  var tag = (t.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+  if (t.isContentEditable) return;
+  playClickSound();
+}, true);
 
 applySettings();
