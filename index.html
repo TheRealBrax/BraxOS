@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+
+  <script type="module" src="./script.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+
+  </head>
+
+
+  <body>
+    <div class="desktop-glow"></div>
+
+    <div class="topbar">
+      <div class="titlebar">
+        <button id="welcomeopen">BraxOS</button>
+      </div>
+      <div class="statusbar">
+        <span id="timeElement">Time</span>
+      </div>
+    </div>
+
+    <div class="window" id="welcome">
+      <div class="windowheader" id="welcomeheader">
+        <div class="header-left">
+          <img class="draghandle" src="arrow.png" alt="Drag Handle">
+          <span class="window-title">Welcome</span>
+        </div>
+        <span class="closebutton windowclose" id="welcomeclose">×</span>
+      </div>
+
+      <h1>BraxOS</h1>
+      <p class="windowsubtitle">A frosted glass web desktop experience built for modern style and smooth motion.</p>
+
+      <div class="windowbody">
+        <div class="windowtext">
+          <p>Hi, I’m Braxton. Welcome to BraxOS — feel free to look around!</p>
+          <div class="linkrow">
+            <a class="buttonlink" href="https://www.instagram.com/braxtonmarx/">Instagram</a>
+            <a class="buttonlink" href="https://github.com/TheRealBrax">Github</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="window hidden" id="apps">
+      <div class="windowheader" id="appsheader">
+        <div class="header-left">
+          <img class="draghandle" src="arrow.png" alt="Drag Handle">
+          <span class="window-title">Apps</span>
+        </div>
+        <span class="closebutton windowclose">×</span>
+      </div>
+      <h1>Apps</h1>
+      <p class="windowsubtitle">Launch the built-in Web OS applications.</p>
+      <div class="app-grid">
+        <button type="button" class="app-card" data-target="calculator">Calculator</button>
+        <button type="button" class="app-card" data-target="browser">Browser</button>
+        <button type="button" class="app-card" data-target="notes">Notes</button>
+      </div>
+    </div>
+
+    <div class="window hidden" id="browser">
+      <div class="windowheader" id="browserheader">
+        <div class="header-left">
+          <img class="draghandle" src="arrow.png" alt="Drag Handle">
+          <span class="window-title">Browser</span>
+        </div>
+        <span class="closebutton windowclose">×</span>
+      </div>
+      <h1>Browser</h1>
+      <p class="windowsubtitle">Enter a web address to browse right inside BraxOS.</p>
+      <div class="browser-controls">
+        <input id="browserUrl" class="browser-url" type="text" placeholder="https://hackclub.com/" value="https://hackclub.com/">
+        <button type="button" id="browserGo" class="buttonlink">Go</button>
+      </div>
+      <div class="browser-frame-wrapper">
+        <iframe id="browserFrame" class="browser-frame" src="https://hackclub.com/" title="Browser window"></iframe>
+      </div>
+      <p class="browser-hint">Some sites may block embedding. If a site does not load, try a different address.</p>
+    </div>
+
+    <div class="window hidden" id="notes">
+      <div class="windowheader" id="notesheader">
+        <div class="header-left">
+          <img class="draghandle" src="arrow.png" alt="Drag Handle">
+          <span class="window-title">Notes</span>
+        </div>
+        <span class="closebutton windowclose">×</span>
+      </div>
+      <h1>Notes</h1>
+      <p class="windowsubtitle">Write notes here and they will be saved in your browser.</p>
+      <div class="notes-body">
+        <textarea id="notesText" class="notes-textarea" placeholder="Type your notes..."></textarea>
+        <button type="button" id="saveNotes" class="buttonlink">Save Notes</button>
+      </div>
+    </div>
+
+    <div class="window hidden" id="calculator">
+      <div class="windowheader" id="calculatorheader">
+        <div class="header-left">
+          <img class="draghandle" src="arrow.png" alt="Drag Handle">
+          <span class="window-title">Calculator</span>
+        </div>
+        <span class="closebutton windowclose">×</span>
+      </div>
+      <h1>Calculator</h1>
+      <p class="windowsubtitle">A small built-in calculator for quick math.</p>
+      <div class="calculator-body">
+        <div id="calcDisplay" class="calc-display">0</div>
+        <div class="calculator-grid">
+          <button type="button" class="calc-button" data-value="7">7</button>
+          <button type="button" class="calc-button" data-value="8">8</button>
+          <button type="button" class="calc-button" data-value="9">9</button>
+          <button type="button" class="calc-button operator" data-value="/">÷</button>
+          <button type="button" class="calc-button" data-value="4">4</button>
+          <button type="button" class="calc-button" data-value="5">5</button>
+          <button type="button" class="calc-button" data-value="6">6</button>
+          <button type="button" class="calc-button operator" data-value="*">×</button>
+          <button type="button" class="calc-button" data-value="1">1</button>
+          <button type="button" class="calc-button" data-value="2">2</button>
+          <button type="button" class="calc-button" data-value="3">3</button>
+          <button type="button" class="calc-button operator" data-value="-">−</button>
+          <button type="button" class="calc-button" data-value="0">0</button>
+          <button type="button" class="calc-button" data-value=".">.</button>
+          <button type="button" class="calc-button" data-value="clear">C</button>
+          <button type="button" class="calc-button operator" data-value="+">+</button>
+          <button type="button" class="calc-button equals" data-value="=">=</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="window hidden" id="files">
+      <div class="windowheader" id="filesheader">
+        <div class="header-left">
+          <img class="draghandle" src="arrow.png" alt="Drag Handle">
+          <span class="window-title">Files</span>
+        </div>
+        <span class="closebutton windowclose">×</span>
+      </div>
+      <h1>Files</h1>
+      <p class="windowsubtitle">Browse and manage your Web OS documents.</p>
+      <div class="file-list">
+        <div class="file-row" data-fileid="documents">Documents.txt</div>
+        <div class="file-row" data-fileid="photos">Photos.png</div>
+        <div class="file-row" data-fileid="projects">Projects.zip</div>
+      </div>
+    </div>
+
+    <div class="window hidden" id="filePreview">
+      <div class="windowheader" id="filePreviewheader">
+        <div class="header-left">
+          <img class="draghandle" src="arrow.png" alt="Drag Handle">
+          <span class="window-title">File Preview</span>
+        </div>
+        <span class="closebutton windowclose">×</span>
+      </div>
+      <h1 id="previewFileName">File Preview</h1>
+      <p class="windowsubtitle" id="previewFileType">Select a file to view its contents.</p>
+      <div class="preview-body">
+        <pre id="previewFileContent" class="preview-output">No file selected.</pre>
+      </div>
+    </div>
+
+    <div class="window hidden" id="settings">
+      <div class="windowheader" id="settingsheader">
+        <div class="header-left">
+          <img class="draghandle" src="arrow.png" alt="Drag Handle">
+          <span class="window-title">Settings</span>
+        </div>
+        <span class="closebutton windowclose">×</span>
+      </div>
+      <h1>Settings</h1>
+      <p class="windowsubtitle">Customize the look and feel of your Web OS.</p>
+      <div class="settings-list">
+        <label class="setting-row"><input id="glassToggle" type="checkbox" checked> Enable glass effect</label>
+        <label class="setting-row"><input id="glowToggle" type="checkbox"> Show desktop glow</label>
+        <label class="setting-row"><input id="darkToggle" type="checkbox"> Dark mode</label>
+      </div>
+    </div>
+
+    <div class="dock">
+      <button class="dockicon" data-target="apps">Apps</button>
+      <button class="dockicon" data-target="files">Files</button>
+      <button class="dockicon" data-target="settings">Settings</button>
+    </div>
+  </body>
+
+</html>
